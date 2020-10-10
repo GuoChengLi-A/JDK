@@ -503,7 +503,7 @@ public class ArrayList<E> extends AbstractList<E>
      * @return the element that was removed from the list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    public E remove(int index) {
+    public E remove(int index) {//根据索引remove
         rangeCheck(index);
 
         modCount++;
@@ -511,6 +511,10 @@ public class ArrayList<E> extends AbstractList<E>
 
         int numMoved = size - index - 1;
         if (numMoved > 0)
+            //remove(2)
+            //['a', 'b', 'c', 'd', 'e']
+            //将源数组[index+1,size) copy 到目标数组[index,size-index-1)
+            //['a', 'b', 'd', 'e', 'e']
             System.arraycopy(elementData, index + 1, elementData, index,
                     numMoved);
         elementData[--size] = null; // clear to let GC do its work
@@ -531,14 +535,14 @@ public class ArrayList<E> extends AbstractList<E>
      * @param o element to be removed from this list, if present
      * @return <tt>true</tt> if this list contained the specified element
      */
-    public boolean remove(Object o) {
-        if (o == null) {
+    public boolean remove(Object o) {//根据元素remove
+        if (o == null) {//==null
             for (int index = 0; index < size; index++)
                 if (elementData[index] == null) {
-                    fastRemove(index);
+                    fastRemove(index);//void 没有rangeCheck
                     return true;
                 }
-        } else {
+        } else {//equals()方法对null无效
             for (int index = 0; index < size; index++)
                 if (o.equals(elementData[index])) {
                     fastRemove(index);
@@ -613,7 +617,7 @@ public class ArrayList<E> extends AbstractList<E>
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(int index, Collection<? extends E> c) {
-        rangeCheckForAdd(index);
+        rangeCheckForAdd(index);//index必须在[0,size]之间
 
         Object[] a = c.toArray();
         int numNew = a.length;
@@ -643,9 +647,15 @@ public class ArrayList<E> extends AbstractList<E>
      *          toIndex > size() ||
      *          toIndex < fromIndex})
      */
-    protected void removeRange(int fromIndex, int toIndex) {
+    protected void removeRange(int fromIndex, int toIndex) {//移除[fromIndex,toIndex)
         modCount++;
         int numMoved = size - toIndex;
+
+        //removeRange(1,2)
+        //['a', 'b', 'c', 'd', 'e']
+        //将源数组[index+1,size) copy 到目标数组[index,size-index-1)
+        //['a', 'c', 'd', 'e']
+
         System.arraycopy(elementData, toIndex, elementData, fromIndex,
                 numMoved);
 
@@ -700,7 +710,7 @@ public class ArrayList<E> extends AbstractList<E>
      *         or if the specified collection is null
      * @see Collection#contains(Object)
      */
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(Collection<?> c) {//差集
         Objects.requireNonNull(c);
         return batchRemove(c, false);
     }
@@ -721,11 +731,12 @@ public class ArrayList<E> extends AbstractList<E>
      *         or if the specified collection is null
      * @see Collection#contains(Object)
      */
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(Collection<?> c) {//交集
         Objects.requireNonNull(c);
         return batchRemove(c, true);
     }
-
+    //complement:true:如果c中包含元素x，那么放入原集合； 交集 可能包含重复元素（与并集定义有出入）
+    //           false:如果c中不包含元素x，那么放入原集合； 差集
     private boolean batchRemove(Collection<?> c, boolean complement) {
         final Object[] elementData = this.elementData;
         int r = 0, w = 0;
@@ -734,7 +745,7 @@ public class ArrayList<E> extends AbstractList<E>
             for (; r < size; r++)
                 if (c.contains(elementData[r]) == complement)
                     elementData[w++] = elementData[r];
-        } finally {
+        } finally {//let gc work
             // Preserve behavioral compatibility with AbstractCollection,
             // even if c.contains() throws.
             if (r != size) {
@@ -763,6 +774,7 @@ public class ArrayList<E> extends AbstractList<E>
      *             instance is emitted (int), followed by all of its elements
      *             (each an <tt>Object</tt>) in the proper order.
      */
+    //将arraylist实例的状态保持到流中
     private void writeObject(java.io.ObjectOutputStream s)
             throws java.io.IOException {
         // Write out element count, and any hidden stuff
@@ -853,10 +865,18 @@ public class ArrayList<E> extends AbstractList<E>
      * An optimized version of AbstractList.Itr
      */
     private class Itr implements Iterator<E> {
-        int cursor;       // index of next element to return
+        int cursor;       // 下一个要返回元素的索引
         int lastRet = -1; // index of last element returned; -1 if no such
         int expectedModCount = modCount;
 
+        /*
+        * 为什么要定义modCount?
+        * 使用迭代器遍历时：while(iter.hashNext()){iter.next()}
+        * 如果在遍历时iter做了remove操作，那么hasNext()检查时，cursor!=size继续遍历。
+        * 做查询操作时，如果对列表进行增删改操作是线程不安全的。
+        * 迭代器模式不允许一个线程读取，另外一个线程add remove
+        * 如果需要在迭代时操作集合，那么可使用CopyOnWriteArrayList
+        */
         public boolean hasNext() {
             return cursor != size;
         }
@@ -1007,6 +1027,7 @@ public class ArrayList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
+    //对subList对象的修改会反应到list对象上，反之亦然
     public List<E> subList(int fromIndex, int toIndex) {
         subListRangeCheck(fromIndex, toIndex, size);
         return new SubList(this, 0, fromIndex, toIndex);
@@ -1040,7 +1061,7 @@ public class ArrayList<E> extends AbstractList<E>
         public E set(int index, E e) {
             rangeCheck(index);
             checkForComodification();
-            E oldValue = ArrayList.this.elementData(offset + index);
+            E oldValue = ArrayList.this.elementData(offset + index);//类名.this在内部类中调用外部类的成员域
             ArrayList.this.elementData[offset + index] = e;
             return oldValue;
         }
@@ -1285,6 +1306,7 @@ public class ArrayList<E> extends AbstractList<E>
         return new ArrayListSpliterator<>(this, 0, -1, 0);
     }
 
+    //需要读stream流式操作源码
     /** Index-based split-by-two, lazily initialized Spliterator */
     static final class ArrayListSpliterator<E> implements Spliterator<E> {
 

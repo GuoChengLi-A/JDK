@@ -85,7 +85,7 @@ import java.io.InvalidObjectException;
  * @see     HashMap
  * @since   1.2
  */
-
+//{k1:o1,k2:o2,...} 其中02为Object实例 的hashMap变种
 public class HashSet<E>
     extends AbstractSet<E>
     implements Set<E>, Cloneable, java.io.Serializable

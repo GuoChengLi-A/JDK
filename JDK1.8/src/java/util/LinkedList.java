@@ -122,8 +122,9 @@ public class LinkedList<E>
     /**
      * Links e as first element.
      */
+    //为什么不直接操作成员变量？有什么好处？
     private void linkFirst(E e) {
-        final Node<E> f = first;
+        final Node<E> f = first;//f存放first的地址
         final Node<E> newNode = new Node<>(null, e, f);
         first = newNode;
         if (f == null)
@@ -132,6 +133,7 @@ public class LinkedList<E>
             f.prev = newNode;
         size++;
         modCount++;
+
     }
 
     /**
@@ -254,6 +256,7 @@ public class LinkedList<E>
     public E getLast() {
         final Node<E> l = last;
         if (l == null)
+            //如果linkedList实例为空，那么调用getLast()抛出NoSuchElementException异常
             throw new NoSuchElementException();
         return l.item;
     }
