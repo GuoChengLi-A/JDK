@@ -24,24 +24,23 @@
  */
 package java.lang;
 
-import java.io.*;
-import java.lang.reflect.Executable;
-import java.lang.annotation.Annotation;
-import java.security.AccessControlContext;
-import java.util.Properties;
-import java.util.PropertyPermission;
-import java.util.StringTokenizer;
-import java.util.Map;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.AllPermission;
-import java.nio.channels.Channel;
-import java.nio.channels.spi.SelectorProvider;
 import sun.nio.ch.Interruptible;
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
-import sun.security.util.SecurityConstants;
 import sun.reflect.annotation.AnnotationType;
+import sun.security.util.SecurityConstants;
+
+import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
+import java.nio.channels.Channel;
+import java.nio.channels.spi.SelectorProvider;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Map;
+import java.util.Properties;
+import java.util.PropertyPermission;
 
 /**
  * The <code>System</code> class contains several useful class fields
@@ -209,14 +208,14 @@ public final class System {
      *
      * @since   1.6
      */
-     public static Console console() {
-         if (cons == null) {
-             synchronized (System.class) {
-                 cons = sun.misc.SharedSecrets.getJavaIOAccess().console();
-             }
-         }
-         return cons;
-     }
+    public static Console console() {
+        if (cons == null) {
+            synchronized (System.class) {
+                cons = sun.misc.SharedSecrets.getJavaIOAccess().console();
+            }
+        }
+        return cons;
+    }
 
     /**
      * Returns the channel inherited from the entity that created this
@@ -298,7 +297,7 @@ public final class System {
             // ask the currently installed security manager if we
             // can replace it.
             sm.checkPermission(new RuntimePermission
-                                     ("setSecurityManager"));
+                    ("setSecurityManager"));
         }
 
         if ((s != null) && (s.getClass().getClassLoader() != null)) {
@@ -313,7 +312,7 @@ public final class System {
             AccessController.doPrivileged(new PrivilegedAction<Object>() {
                 public Object run() {
                     s.getClass().getProtectionDomain().implies
-                        (SecurityConstants.ALL_PERMISSION);
+                            (SecurityConstants.ALL_PERMISSION);
                     return null;
                 }
             });
@@ -477,11 +476,11 @@ public final class System {
      * paragraph effectively applies only to the situation where both
      * arrays have component types that are reference types.)
      *
-     * @param      src      the source array.
-     * @param      srcPos   starting position in the source array.
-     * @param      dest     the destination array.
-     * @param      destPos  starting position in the destination data.
-     * @param      length   the number of array elements to be copied.
+     * @param      src      源数组
+     * @param      srcPos   源数组开始位置
+     * @param      dest     目标数组
+     * @param      destPos  目标数组开始位置
+     * @param      length   源数组拷贝元素数量
      * @exception  IndexOutOfBoundsException  if copying would cause
      *               access of data outside array bounds.
      * @exception  ArrayStoreException  if an element in the <code>src</code>
@@ -790,7 +789,7 @@ public final class System {
         SecurityManager sm = getSecurityManager();
         if (sm != null) {
             sm.checkPermission(new PropertyPermission(key,
-                SecurityConstants.PROPERTY_WRITE_ACTION));
+                    SecurityConstants.PROPERTY_WRITE_ACTION));
         }
 
         return (String) props.setProperty(key, value);
@@ -1140,7 +1139,7 @@ public final class System {
      * Create PrintStream for stdout/err based on encoding.
      */
     private static PrintStream newPrintStream(FileOutputStream fos, String enc) {
-       if (enc != null) {
+        if (enc != null) {
             try {
                 return new PrintStream(new BufferedOutputStream(fos, 128), true, enc);
             } catch (UnsupportedEncodingException uee) {}
@@ -1245,7 +1244,7 @@ public final class System {
                 return Class.getExecutableTypeAnnotationBytes(executable);
             }
             public <E extends Enum<E>>
-                    E[] getEnumConstantsShared(Class<E> klass) {
+            E[] getEnumConstantsShared(Class<E> klass) {
                 return klass.getEnumConstantsShared();
             }
             public void blockedOn(Thread t, Interruptible b) {
