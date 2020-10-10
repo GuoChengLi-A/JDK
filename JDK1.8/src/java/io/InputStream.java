@@ -45,7 +45,7 @@ package java.io;
 public abstract class InputStream implements Closeable {
 
     // MAX_SKIP_BUFFER_SIZE is used to determine the maximum buffer size to
-    // use when skipping.
+    // use when skipping. buffer最大size
     private static final int MAX_SKIP_BUFFER_SIZE = 2048;
 
     /**

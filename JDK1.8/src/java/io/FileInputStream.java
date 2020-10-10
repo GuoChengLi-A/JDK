@@ -25,8 +25,9 @@
 
 package java.io;
 
-import java.nio.channels.FileChannel;
 import sun.nio.ch.FileChannelImpl;
+
+import java.nio.channels.FileChannel;
 
 
 /**
@@ -49,7 +50,7 @@ public
 class FileInputStream extends InputStream
 {
     /* File Descriptor - handle to the open file */
-    private final FileDescriptor fd;
+    private final FileDescriptor fd;//文件描述符
 
     /**
      * The path of the referenced file
@@ -57,9 +58,9 @@ class FileInputStream extends InputStream
      */
     private final String path;
 
-    private FileChannel channel = null;
+    private FileChannel channel = null;//通道，与nio有关
 
-    private final Object closeLock = new Object();
+    private final Object closeLock = new Object();//资源关闭锁？
     private volatile boolean closed = false;
 
     /**
@@ -89,6 +90,7 @@ class FileInputStream extends InputStream
      *               to the file.
      * @see        java.lang.SecurityManager#checkRead(java.lang.String)
      */
+    //name 文件路径
     public FileInputStream(String name) throws FileNotFoundException {
         this(name != null ? new File(name) : null);
     }
@@ -124,12 +126,12 @@ class FileInputStream extends InputStream
         String name = (file != null ? file.getPath() : null);
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
-            security.checkRead(name);
+            security.checkRead(name);//检查权限？
         }
         if (name == null) {
             throw new NullPointerException();
         }
-        if (file.isInvalid()) {
+        if (file.isInvalid()) {//路径无效
             throw new FileNotFoundException("Invalid file path");
         }
         fd = new FileDescriptor();
@@ -184,6 +186,7 @@ class FileInputStream extends InputStream
      * Opens the specified file for reading.
      * @param name the name of the file
      */
+    //本地方法 open0()
     private native void open0(String name) throws FileNotFoundException;
 
     // wrap native call to allow instrumentation
@@ -204,7 +207,7 @@ class FileInputStream extends InputStream
      * @exception  IOException  if an I/O error occurs.
      */
     public int read() throws IOException {
-        return read0();
+        return read0();//返回的的是读取字符的长度
     }
 
     private native int read0() throws IOException;
@@ -279,6 +282,7 @@ class FileInputStream extends InputStream
      * @exception  IOException  if n is negative, if the stream does not
      *             support seek, or if an I/O error occurs.
      */
+    //丢弃流中的n个字节数据
     public native long skip(long n) throws IOException;
 
     /**
@@ -363,6 +367,7 @@ class FileInputStream extends InputStream
      * @since 1.4
      * @spec JSR-51
      */
+    //获取通道，线程安全的
     public FileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
@@ -394,6 +399,7 @@ class FileInputStream extends InputStream
              * safe to do so. All references using the fd have
              * become unreachable. We can call close()
              */
+            //unreachable不可达状态
             close();
         }
     }

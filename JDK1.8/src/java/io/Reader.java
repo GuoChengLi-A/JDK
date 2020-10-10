@@ -57,6 +57,7 @@ public abstract class Reader implements Readable, Closeable {
      * the object in this field rather than <tt>this</tt> or a synchronized
      * method.
      */
+    //为了提高效率，不使用当前对象作为同步锁。为什么？
     protected Object lock;
 
     /**
@@ -73,6 +74,7 @@ public abstract class Reader implements Readable, Closeable {
      *
      * @param lock  The Object to synchronize on.
      */
+    //构造Reader时，如果传入lock，那么
     protected Reader(Object lock) {
         if (lock == null) {
             throw new NullPointerException();
@@ -116,6 +118,7 @@ public abstract class Reader implements Readable, Closeable {
      *
      * @exception  IOException  If an I/O error occurs
      */
+    //阻塞直到有一个字符可用 or 抛出异常 or 到达流的末尾
     public int read() throws IOException {
         char cb[] = new char[1];
         if (read(cb, 0, 1) == -1)
@@ -136,6 +139,7 @@ public abstract class Reader implements Readable, Closeable {
      *
      * @exception   IOException  If an I/O error occurs
      */
+    //阻塞直到有多个个字符可用 or 抛出异常 or 到达流的末尾
     public int read(char cbuf[]) throws IOException {
         return read(cbuf, 0, cbuf.length);
     }
