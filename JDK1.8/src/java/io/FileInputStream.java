@@ -134,7 +134,7 @@ class FileInputStream extends InputStream
         if (file.isInvalid()) {//路径无效
             throw new FileNotFoundException("Invalid file path");
         }
-        fd = new FileDescriptor();
+        fd = new FileDescriptor();//实例化FileInputStream时会持有一个文件描述符
         fd.attach(this);
         path = name;
         open(name);
@@ -164,6 +164,8 @@ class FileInputStream extends InputStream
      *                 file descriptor.
      * @see        SecurityManager#checkRead(java.io.FileDescriptor)
      */
+    /*通过文件描述符读取文件，如果文件没有读取权限，那么会抛出SecurityException异常
+    */
     public FileInputStream(FileDescriptor fdObj) {
         SecurityManager security = System.getSecurityManager();
         if (fdObj == null) {
@@ -206,6 +208,7 @@ class FileInputStream extends InputStream
      *             file is reached.
      * @exception  IOException  if an I/O error occurs.
      */
+    //读取流中的一个字节
     public int read() throws IOException {
         return read0();//返回的的是读取字符的长度
     }
@@ -219,6 +222,8 @@ class FileInputStream extends InputStream
      * @param len the number of bytes that are written
      * @exception IOException If an I/O error has occurred.
      */
+    //读取流中的多个字节
+    //将len-off个字节读取到byte数组中  len-1-off+1=len-off
     private native int readBytes(byte b[], int off, int len) throws IOException;
 
     /**
@@ -316,6 +321,8 @@ class FileInputStream extends InputStream
      * @revised 1.4
      * @spec JSR-51
      */
+    //关闭输入流，并释放系统资源；如果流与通道有关，那么关闭流的同时也会关闭通道
+    //close()是线程安全的，仅执行一次
     public void close() throws IOException {
         synchronized (closeLock) {
             if (closed) {

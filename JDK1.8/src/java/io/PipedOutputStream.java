@@ -25,8 +25,6 @@
 
 package java.io;
 
-import java.io.*;
-
 /**
  * A piped output stream can be connected to a piped input stream
  * to create a communications pipe. The piped output stream is the
@@ -43,6 +41,7 @@ import java.io.*;
  * @see     java.io.PipedInputStream
  * @since   JDK1.0
  */
+//多线程读取，单线程写入
 public
 class PipedOutputStream extends OutputStream {
 
@@ -115,6 +114,7 @@ class PipedOutputStream extends OutputStream {
      *          {@link #connect(java.io.PipedInputStream) unconnected},
      *          closed, or if an I/O error occurs.
      */
+    //调用此方法，b进入PipedInputStream的缓冲区
     public void write(int b)  throws IOException {
         if (sink == null) {
             throw new IOException("Pipe not connected");

@@ -489,6 +489,8 @@ public final class System {
      * @exception  NullPointerException if either <code>src</code> or
      *               <code>dest</code> is <code>null</code>.
      */
+    //length必须小于dest.length-destPos
+    //即dest数组必须为src数组预留位置，多余元素丢弃，元素不足置为默认值
     public static native void arraycopy(Object src,  int  srcPos,
                                         Object dest, int destPos,
                                         int length);
