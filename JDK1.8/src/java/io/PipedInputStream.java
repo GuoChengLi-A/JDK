@@ -58,6 +58,7 @@ package java.io;
  *
  * 注意事项：如果缓冲区长度小于要写入数据的长度，那么会一直阻塞；此时需要两个及以上线程读取数据
  * 进入缓冲区的数据需要即可被读取，否则会一直阻塞
+ * 与bufferedInputStream区别？
  */
 public class PipedInputStream extends InputStream {
     boolean closedByWriter = false;

@@ -162,6 +162,9 @@ public abstract class InputStream implements Closeable {
         if (b == null) {
             throw new NullPointerException();
         } else if (off < 0 || len < 0 || len > b.length - off) {
+
+            //0<= off && off + len <= b.length
+            //仅对off + len做了限制，并没有限制off与len各自的大小
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
             return 0;

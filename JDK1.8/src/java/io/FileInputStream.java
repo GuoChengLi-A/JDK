@@ -46,6 +46,11 @@ import java.nio.channels.FileChannel;
  * @see     java.nio.file.Files#newInputStream
  * @since   JDK1.0
  */
+
+/*
+* 方法大多是本地方法，通过c实现；
+* readBytes(byte b[], int off, int len)方法与InputStream中read(byte b[], int off, int len)大致相同
+*/
 public
 class FileInputStream extends InputStream
 {
@@ -208,11 +213,12 @@ class FileInputStream extends InputStream
      *             file is reached.
      * @exception  IOException  if an I/O error occurs.
      */
-    //读取流中的一个字节
+    //读取流中的一个字节；重写了InputStream中的read()方法
     public int read() throws IOException {
         return read0();//返回的的是读取字符的长度
     }
 
+    //本地方法，通过C实现
     private native int read0() throws IOException;
 
     /**

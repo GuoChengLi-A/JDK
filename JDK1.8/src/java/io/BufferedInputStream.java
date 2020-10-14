@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 public
 class BufferedInputStream extends FilterInputStream {
 
-    private static int DEFAULT_BUFFER_SIZE = 8192;
+    private static int DEFAULT_BUFFER_SIZE = 8192;//缓存区8M
 
     /**
      * The maximum size of array to allocate.
@@ -58,6 +58,7 @@ class BufferedInputStream extends FilterInputStream {
      * Attempts to allocate larger arrays may result in
      * OutOfMemoryError: Requested array size exceeds VM limit
      */
+    //预留8字节的头文字
     private static int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 8;
 
     /**
@@ -73,6 +74,7 @@ class BufferedInputStream extends FilterInputStream {
      * of buf[] as primary indicator that this stream is closed. (The
      * "in" field is also nulled out on close.)
      */
+    //原子更新，提供比较和set；应为关闭是异步的，所以是必须的
     private static final
         AtomicReferenceFieldUpdater<BufferedInputStream, byte[]> bufUpdater =
         AtomicReferenceFieldUpdater.newUpdater
@@ -87,6 +89,7 @@ class BufferedInputStream extends FilterInputStream {
      * </code>contain buffered input data obtained
      * from the underlying  input stream.
      */
+    //buffer中字节数  0 < count < buf.length
     protected int count;
 
     /**
@@ -104,6 +107,9 @@ class BufferedInputStream extends FilterInputStream {
      *
      * @see     java.io.BufferedInputStream#buf
      */
+    //下一字节在buffer中的位置 0 < pos <= count < buf.length
+    //如果pos < count，下一个被读取的字节是：buf[pos]
+    //如果pos = count，下一个read skip操作需要从流中读取更多字节
     protected int pos;
 
     /**
@@ -133,6 +139,11 @@ class BufferedInputStream extends FilterInputStream {
      * @see     java.io.BufferedInputStream#mark(int)
      * @see     java.io.BufferedInputStream#pos
      */
+    //-1 < markpos < pos < count < buf.length
+    //如果流中没有被标记，那么markpos=-1
+    //如果被标记，那么在reset操作后，buf[markpos]作为第一个字节输入
+    //如果被标记，那么buf[markpos]~buf[pos-1]的数据会保存在buf中；但是可能会移到buf中另一个位置，需要调整count pos markpos值
+    //如果pos-markpos > marklimit 那么xxx将会被丢弃？
     protected int markpos = -1;
 
     /**
@@ -210,6 +221,7 @@ class BufferedInputStream extends FilterInputStream {
      * This method also assumes that all data has already been read in,
      * hence pos > count.
      */
+    //只能被synchronized方法调用，被调用时会塞满buf数组
     private void fill() throws IOException {
         byte[] buffer = getBufIfOpen();
         if (markpos < 0)
