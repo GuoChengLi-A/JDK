@@ -40,6 +40,12 @@ package java.io;
  * @see     java.io.StringBufferInputStream
  * @since   JDK1.0
  */
+//从byte arr中新建stream
+/*
+* a.构造时需要传入data，buf指向传入的byte数组；从buf中读取字节到b中
+* b.线程安全
+* c.调用read方法不会抛出异常
+*/
 public
 class ByteArrayInputStream extends InputStream {
 
@@ -120,6 +126,8 @@ class ByteArrayInputStream extends InputStream {
      * @param   offset   the offset in the buffer of the first byte to read.
      * @param   length   the maximum number of bytes to read from the buffer.
      */
+    //从offset 开始读取length个字节
+    //buf由调用方给出  数据来源
     public ByteArrayInputStream(byte buf[], int offset, int length) {
         this.buf = buf;
         this.pos = offset;

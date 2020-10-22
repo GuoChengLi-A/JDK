@@ -47,10 +47,16 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * @author  Arthur van Hoff
  * @since   JDK1.0
  */
+//从Stream中读取数据到buf中，此类提供了前进和回退的操作（双向操作）；弥补了Stream的缺陷--只能单向操作
+/*
+* a.从InputStream构造实例，默认buf为8kb；也可自定义buf长度
+* b.线程安全、双向
+* c.从InputStream中读取字节到buf中，后操作buf中字节；如果buf中字节已被读取完毕，那么调用fill方法再次塞满buf
+*/
 public
 class BufferedInputStream extends FilterInputStream {
 
-    private static int DEFAULT_BUFFER_SIZE = 8192;//缓存区8M
+    private static int DEFAULT_BUFFER_SIZE = 8192;//缓存区8k
 
     /**
      * The maximum size of array to allocate.
@@ -66,6 +72,12 @@ class BufferedInputStream extends FilterInputStream {
      * it may be replaced by another array of
      * a different size.
      */
+    /*
+    * 调用read(byte b[], int off, int len)时
+    * 如果buf.length < len 调用InputStream方法read方法
+    * 如果buf.length > len 先调用fill()方法将buf塞满，后从buf中读取字节
+    *
+    */
     protected volatile byte buf[];
 
     /**
@@ -89,7 +101,8 @@ class BufferedInputStream extends FilterInputStream {
      * </code>contain buffered input data obtained
      * from the underlying  input stream.
      */
-    //buffer中字节数  0 < count < buf.length
+    //buf中最后一个有效字符的索引值+1  0 <= count <= buf.length
+    //buf中有效字节的总数
     protected int count;
 
     /**
@@ -107,9 +120,10 @@ class BufferedInputStream extends FilterInputStream {
      *
      * @see     java.io.BufferedInputStream#buf
      */
-    //下一字节在buffer中的位置 0 < pos <= count < buf.length
+    // 0 <= pos <= count < buf.length
     //如果pos < count，下一个被读取的字节是：buf[pos]
     //如果pos = count，下一个read skip操作需要从流中读取更多字节
+    //buf中已读取过的字节数 or buf中下一要被读取字节的索引
     protected int pos;
 
     /**
@@ -226,18 +240,19 @@ class BufferedInputStream extends FilterInputStream {
         byte[] buffer = getBufIfOpen();
         if (markpos < 0)
             pos = 0;            /* no mark: throw away the buffer */
-        else if (pos >= buffer.length)  /* no room left in buffer */
+        else if (pos >= buffer.length) //buf中数据已读取完 /* no room left in buffer */
             if (markpos > 0) {  /* can throw away early part of the buffer */
                 int sz = pos - markpos;
                 System.arraycopy(buffer, markpos, buffer, 0, sz);
+                //buf被mark时，将buf[markpos, markpos+sz) copy buf[0, sz+0) 即将有效字符拷贝
                 pos = sz;
-                markpos = 0;
-            } else if (buffer.length >= marklimit) {
+                markpos = 0;//没有将markpos置为-1的效果：可检查marklimit的范围
+            } else if (buffer.length >= marklimit) {//
                 markpos = -1;   /* buffer got too big, invalidate mark */
                 pos = 0;        /* drop buffer contents */
-            } else if (buffer.length >= MAX_BUFFER_SIZE) {
+            } else if (buffer.length >= MAX_BUFFER_SIZE) {//MAX_BUFFER_SIZE <= buf.length < makrlimit
                 throw new OutOfMemoryError("Required array size too large");
-            } else {            /* grow buffer */
+            } else {            /* grow buffer */   //？？？？
                 int nsz = (pos <= MAX_BUFFER_SIZE - pos) ?
                         pos * 2 : MAX_BUFFER_SIZE;
                 if (nsz > marklimit)
@@ -255,6 +270,8 @@ class BufferedInputStream extends FilterInputStream {
                 buffer = nbuf;
             }
         count = pos;
+
+        //将数据读到buf中
         int n = getInIfOpen().read(buffer, pos, buffer.length - pos);
         if (n > 0)
             count = n + pos;
@@ -278,27 +295,40 @@ class BufferedInputStream extends FilterInputStream {
             if (pos >= count)
                 return -1;
         }
-        return getBufIfOpen()[pos++] & 0xff;
+        return getBufIfOpen()[pos++] & 0xff;//保证补码一致 返回将要读取的字节
     }
 
     /**
      * Read characters into a portion of an array, reading from the underlying
      * stream at most once if necessary.
      */
+    //返回从buf中读取字节数
     private int read1(byte[] b, int off, int len) throws IOException {
-        int avail = count - pos;
-        if (avail <= 0) {
+        int avail = count - pos;//buf中尚未处理处理的字节数
+        if (avail <= 0) {//buf中字节已处理完毕
             /* If the requested length is at least as large as the buffer, and
                if there is no mark/reset activity, do not bother to copy the
                bytes into the local buffer.  In this way buffered streams will
                cascade harmlessly. */
             if (len >= getBufIfOpen().length && markpos < 0) {
+                //如果数据长度 > buf长度，调用InputStream的read(byte b[], int off, int len)方法
+                //此时buf中数据为空
                 return getInIfOpen().read(b, off, len);
             }
-            fill();
+            fill();//向buf中塞入新数据
             avail = count - pos;
             if (avail <= 0) return -1;
         }
+        //取min 为什么？
+        /*
+        * 程序正常情况下avail一定是大于len，原因是：
+        * 如果buf.length < b.length
+        * 初次调用read1方法，count pos 均为0；进入avail <= 0 调用InputStream的read方法并return；此时avail为0
+        * 由于read方法是while循环，都不会进入if以外的代码
+        * 简言之：如果buf长度小于len，那么不会跳出if块
+        */
+
+        //？？？？
         int cnt = (avail < len) ? avail : len;
         System.arraycopy(getBufIfOpen(), pos, b, off, cnt);
         pos += cnt;
@@ -352,13 +382,15 @@ class BufferedInputStream extends FilterInputStream {
             return 0;
         }
 
-        int n = 0;
-        for (;;) {
+        int n = 0;//已读取字节总数
+        for (;;) {//等价于while(true)死循环
             int nread = read1(b, off + n, len - n);
             if (nread <= 0)
                 return (n == 0) ? nread : n;
             n += nread;
             if (n >= len)
+                //调用了InputStream的read(byte b[], int off, int len)
+                //或b中已经塞满了数据
                 return n;
             // if not closed but no bytes available, return
             InputStream input = in;
@@ -417,6 +449,7 @@ class BufferedInputStream extends FilterInputStream {
      *                          invoking its {@link #close()} method,
      *                          or an I/O error occurs.
      */
+    //返回剩余可读取字节数的估计值
     public synchronized int available() throws IOException {
         int n = count - pos;
         int avail = getInIfOpen().available();

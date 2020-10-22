@@ -301,6 +301,8 @@ public abstract class InputStream implements Closeable {
      *                      the mark position becomes invalid.
      * @see     java.io.InputStream#reset()
      */
+    //标记数据流中的当前位置
+    //有个约定？
     public synchronized void mark(int readlimit) {}
 
     /**

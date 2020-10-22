@@ -25,8 +25,9 @@
 
 package java.io;
 
-import java.nio.channels.FileChannel;
 import sun.nio.ch.FileChannelImpl;
+
+import java.nio.channels.FileChannel;
 
 
 /**
@@ -55,7 +56,9 @@ import sun.nio.ch.FileChannelImpl;
  * @author  unascribed
  * @since   JDK1.0
  */
-
+//如果file无字节可被读取，则抛出EOF异常
+//如果由于上述原因外无法读取字节，那么抛出IO异常
+//功能：任意编辑文件
 public class RandomAccessFile implements DataOutput, DataInput, Closeable {
 
     private FileDescriptor fd;
@@ -431,6 +434,8 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  IOException   if an I/O error occurs.
      */
     public final void readFully(byte b[], int off, int len) throws IOException {
+        //凑在一起发车，否则不走
+        //将b塞满，否则不走
         int n = 0;
         do {
             int count = this.read(b, off + n, len - n);
@@ -464,10 +469,10 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
         if (n <= 0) {
             return 0;
         }
-        pos = getFilePointer();
-        len = length();
+        pos = getFilePointer();//文件指针当前位置
+        len = length();//文件的字节数 文件的长度
         newpos = pos + n;
-        if (newpos > len) {
+        if (newpos > len) {//如果跳转后的新位置 > 文件最长位置
             newpos = len;
         }
         seek(newpos);
@@ -550,6 +555,8 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  IOException  if {@code pos} is less than
      *                          {@code 0} or if an I/O error occurs.
      */
+    //只有当offset设置超出文件长度，才可以通过写入字节改变文件长度？？
+    //设置offset
     public void seek(long pos) throws IOException {
         if (pos < 0) {
             throw new IOException("Negative seek offset");
@@ -587,6 +594,7 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  IOException  If an I/O error occurs
      * @since      1.2
      */
+    //如果newLength小于原文件长度，那么原文件将立刻被折断并反应到文件中
     public native void setLength(long newLength) throws IOException;
 
     /**
@@ -603,6 +611,8 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @revised 1.4
      * @spec JSR-51
      */
+    //一旦一个线程持有closeLock,那么通过closed判断是否已关闭
+    //closed相当于一个标记
     public void close() throws IOException {
         synchronized (closeLock) {
             if (closed) {
@@ -638,6 +648,8 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  EOFException  if this file has reached the end.
      * @exception  IOException   if an I/O error occurs.
      */
+    //从file中读取一个byte
+    //如果file中仍有字节可被读取，那么返回true；反之返回false
     public final boolean readBoolean() throws IOException {
         int ch = this.read();
         if (ch < 0)
@@ -663,6 +675,7 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  EOFException  if this file has reached the end.
      * @exception  IOException   if an I/O error occurs.
      */
+    //有符号字节：-127 ~ 128
     public final byte readByte() throws IOException {
         int ch = this.read();
         if (ch < 0)
@@ -683,6 +696,7 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  EOFException  if this file has reached the end.
      * @exception  IOException   if an I/O error occurs.
      */
+    //无符号字节：0 ~ 255
     public final int readUnsignedByte() throws IOException {
         int ch = this.read();
         if (ch < 0)
@@ -914,10 +928,10 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
         while (!eol) {
             switch (c = read()) {
             case -1:
-            case '\n':
+            case '\n'://换行符
                 eol = true;
                 break;
-            case '\r':
+            case '\r'://回车符
                 eol = true;
                 long cur = getFilePointer();
                 if ((read()) != '\n') {

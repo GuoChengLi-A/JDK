@@ -34,6 +34,7 @@ package java.lang;
  * @see     java.lang.Class
  * @since   JDK1.0
  */
+//所有的对象 数组，都实现了Object的方法
 public class Object {
 
     private static native void registerNatives();
@@ -97,6 +98,12 @@ public class Object {
      * @see     java.lang.Object#equals(java.lang.Object)
      * @see     java.lang.System#identityHashCode
      */
+
+    /*
+    * 对hashCode的约定
+    * 1.如果两个对象调用equals相等，那么两对象的hashCode值一定相等；反之，hashCode一定不等
+    * 2.在程序运行期间，一个对象无论何时调用hashCode方法，值一定不会发生改变
+    */
     public native int hashCode();
 
     /**
@@ -145,6 +152,7 @@ public class Object {
      * @see     #hashCode()
      * @see     java.util.HashMap
      */
+    //调用equals方法时需要排除空指针异常
     public boolean equals(Object obj) {
         return (this == obj);
     }
@@ -268,6 +276,14 @@ public class Object {
      * @see        java.lang.Object#notifyAll()
      * @see        java.lang.Object#wait()
      */
+    /*
+    * 1.唤醒单个线程，不会立即执行，需要与其他线程竞争
+    * 2.只能由持有对象锁的线程调用
+    * 3.被唤醒的线程需要等待对象锁释放
+    * synchronized(obj) 持有obj的线程称为obj的监视器
+    * 线程成为对象监视器有3种方式：
+    * a.调用synchronized内部代码块 b.调用synchronized方法 c.调用synchronized静态代码块
+    */
     public final native void notify();
 
     /**
@@ -379,6 +395,13 @@ public class Object {
      * @see        java.lang.Object#notify()
      * @see        java.lang.Object#notifyAll()
      */
+    /*
+    * 使当前线程等待，需要另外一个线程唤醒
+    * 1.调用后，当前线程进入线程等待状态，并会放弃所持有的锁
+    * 2.其他线程调用notify notifyAll interrupt
+    * 3.即使时间过去，不会立刻唤醒，也需要等待其他线程唤醒
+    * 4.被其他线程唤醒之后，需要与其他线程竞争对象锁；一旦获的锁，那么状态恢复到调用wait方法之前的状态
+    */
     public final native void wait(long timeout) throws InterruptedException;
 
     /**

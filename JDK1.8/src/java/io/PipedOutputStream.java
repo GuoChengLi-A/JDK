@@ -42,6 +42,10 @@ package java.io;
  * @since   JDK1.0
  */
 //多线程读取，单线程写入
+
+/*
+* a.write方法其实是调用的PipedInputStream实例的receive方法
+*/
 public
 class PipedOutputStream extends OutputStream {
 

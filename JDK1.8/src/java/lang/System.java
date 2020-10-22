@@ -491,6 +491,8 @@ public final class System {
      */
     //length必须小于dest.length-destPos
     //即dest数组必须为src数组预留位置，多余元素丢弃，元素不足置为默认值
+    //将src中[srcPos, srcPos+length) copy 到 dest中[destPos, destPos+length)中
+    //比较值是否相同，不相同则set
     public static native void arraycopy(Object src,  int  srcPos,
                                         Object dest, int destPos,
                                         int length);

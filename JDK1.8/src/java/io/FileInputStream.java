@@ -50,6 +50,7 @@ import java.nio.channels.FileChannel;
 /*
 * 方法大多是本地方法，通过c实现；
 * readBytes(byte b[], int off, int len)方法与InputStream中read(byte b[], int off, int len)大致相同
+* 从file中新建stream
 */
 public
 class FileInputStream extends InputStream

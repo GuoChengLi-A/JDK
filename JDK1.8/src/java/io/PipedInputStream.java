@@ -60,6 +60,12 @@ package java.io;
  * 进入缓冲区的数据需要即可被读取，否则会一直阻塞
  * 与bufferedInputStream区别？
  */
+
+/*
+* a.传入PipedOutputStream实例，自动连接并初始化pipe大小--1kb  可自动连接 也可手动连接
+* b.线程安全
+*
+*/
 public class PipedInputStream extends InputStream {
     boolean closedByWriter = false;
     volatile boolean closedByReader = false;

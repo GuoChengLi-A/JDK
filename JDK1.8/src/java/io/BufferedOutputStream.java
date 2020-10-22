@@ -34,6 +34,14 @@ package java.io;
  * @author  Arthur van Hoff
  * @since   JDK1.0
  */
+
+/*
+* a.从OutputStream构造实例，默认buf为8kb；也可自定义buf长度
+* b.线程安全
+* c.每次write都会检查是否需要flush；当buf中字节被读取完时自动flush
+*   自动flush：将buf塞满
+*   手动flush：可能没有将buf塞满，导致buf空间浪费
+*/
 public
 class BufferedOutputStream extends FilterOutputStream {
     /**
@@ -69,7 +77,7 @@ class BufferedOutputStream extends FilterOutputStream {
      * @exception IllegalArgumentException if size &lt;= 0.
      */
     public BufferedOutputStream(OutputStream out, int size) {
-        super(out);
+        super(out);//初始化OutputStream
         if (size <= 0) {
             throw new IllegalArgumentException("Buffer size <= 0");
         }
@@ -91,7 +99,7 @@ class BufferedOutputStream extends FilterOutputStream {
      * @exception  IOException  if an I/O error occurs.
      */
     public synchronized void write(int b) throws IOException {
-        if (count >= buf.length) {
+        if (count >= buf.length) {//如果buf
             flushBuffer();
         }
         buf[count++] = (byte)b;
@@ -114,7 +122,7 @@ class BufferedOutputStream extends FilterOutputStream {
      * @exception  IOException  if an I/O error occurs.
      */
     public synchronized void write(byte b[], int off, int len) throws IOException {
-        if (len >= buf.length) {
+        if (len >= buf.length) {//如果buf长度 <= len，那么不再写入buf，直接调用OutStream的写入方法
             /* If the request length exceeds the size of the output buffer,
                flush the output buffer and then write the data directly.
                In this way buffered streams will cascade harmlessly. */
@@ -122,7 +130,9 @@ class BufferedOutputStream extends FilterOutputStream {
             out.write(b, off, len);
             return;
         }
-        if (len > buf.length - count) {
+        if (len > buf.length - count) {//buf满了之后，自动flush   自动flush比手动flush资源利用率大
+            //自动flush：将buf塞满之后再flush
+            //手动flush：可能未塞满buf，就flush了
             flushBuffer();
         }
         System.arraycopy(b, off, buf, count, len);

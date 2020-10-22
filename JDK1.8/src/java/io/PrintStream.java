@@ -97,7 +97,7 @@ public class PrintStream extends FilterOutputStream
         }
     }
 
-    /* Private constructors */
+    /* Private constructors 构造方法私有*/
     private PrintStream(boolean autoFlush, OutputStream out) {
         super(out);
         this.autoFlush = autoFlush;

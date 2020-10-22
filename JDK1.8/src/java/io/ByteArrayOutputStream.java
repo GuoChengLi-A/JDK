@@ -41,17 +41,27 @@ import java.util.Arrays;
  * @author  Arthur van Hoff
  * @since   JDK1.0
  */
-
+//提供操作byte数组的工具
+/*
+* a.构造时建议给出buf默认大小；从b中读取数据到buf；调用write方法不会抛出异常
+* b.具备buf扩容机制，触发扩容的条件：count+1 > buf.length；触发扩容时，扩大为原来2倍
+* c.内部buf长度为32字节
+* d.线程安全的
+*/
 public class ByteArrayOutputStream extends OutputStream {
 
     /**
      * The buffer where data is stored.
      */
+    //如果没有给出buf大小，那么buf设置为32字节
+    //建议new时，给出buf长度
     protected byte buf[];
 
     /**
      * The number of valid bytes in the buffer.
      */
+    //并不一定等于buf的长度
+    //有效字节：尚未被读取的字节数
     protected int count;
 
     /**
@@ -89,7 +99,7 @@ public class ByteArrayOutputStream extends OutputStream {
      */
     private void ensureCapacity(int minCapacity) {
         // overflow-conscious code
-        if (minCapacity - buf.length > 0)
+        if (minCapacity - buf.length > 0)//如果buf长度不够
             grow(minCapacity);
     }
 
@@ -110,7 +120,7 @@ public class ByteArrayOutputStream extends OutputStream {
     private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = buf.length;
-        int newCapacity = oldCapacity << 1;
+        int newCapacity = oldCapacity << 1;//扩容为原来2倍
         if (newCapacity - minCapacity < 0)
             newCapacity = minCapacity;
         if (newCapacity - MAX_ARRAY_SIZE > 0)
@@ -132,6 +142,8 @@ public class ByteArrayOutputStream extends OutputStream {
      * @param   b   the byte to be written.
      */
     public synchronized void write(int b) {
+        //count + 1在buf.length内无需扩容
+        //一旦count + 1 超出buf长度，那么buf扩容为原来的2倍
         ensureCapacity(count + 1);
         buf[count] = (byte) b;
         count += 1;
@@ -145,6 +157,9 @@ public class ByteArrayOutputStream extends OutputStream {
      * @param   off   the start offset in the data.
      * @param   len   the number of bytes to write.
      */
+    /*
+    * 从b中写数据到buf中
+    */
     public synchronized void write(byte b[], int off, int len) {
         if ((off < 0) || (off > b.length) || (len < 0) ||
             ((off + len) - b.length > 0)) {
@@ -163,6 +178,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @param      out   the output stream to which to write the data.
      * @exception  IOException  if an I/O error occurs.
      */
+    //从buf中写数据到OutStream中
     public synchronized void writeTo(OutputStream out) throws IOException {
         out.write(buf, 0, count);
     }
@@ -175,6 +191,8 @@ public class ByteArrayOutputStream extends OutputStream {
      *
      * @see     java.io.ByteArrayInputStream#count
      */
+    //将count置为0，再次write时从0开始写入
+    //源数据并不会丢失
     public synchronized void reset() {
         count = 0;
     }
