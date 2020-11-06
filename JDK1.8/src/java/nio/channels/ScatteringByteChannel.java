@@ -27,7 +27,7 @@ package java.nio.channels;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
+//
 
 /**
  * A channel that can read bytes into a sequence of buffers.
@@ -45,7 +45,12 @@ import java.nio.ByteBuffer;
  * @author JSR-51 Expert Group
  * @since 1.4
  */
-
+/*
+* selector->可管理多个channel->可读出或写入多个buf
+*
+* 具有的功能：可以读出字节到一系列buf中的channel    scatter分散
+* 在实现网络协议时，分散到多个buf会更有效；将数据分组为定长的header，可变长的body
+*/
 public interface ScatteringByteChannel
     extends ReadableByteChannel
 {
@@ -122,7 +127,6 @@ public interface ScatteringByteChannel
      */
     public long read(ByteBuffer[] dsts, int offset, int length)
         throws IOException;
-
     /**
      * Reads a sequence of bytes from this channel into the given buffers.
      *
@@ -158,5 +162,4 @@ public interface ScatteringByteChannel
      *          If some other I/O error occurs
      */
     public long read(ByteBuffer[] dsts) throws IOException;
-
 }

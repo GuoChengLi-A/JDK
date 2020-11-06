@@ -61,7 +61,14 @@ import java.io.IOException;
  * @author JSR-51 Expert Group
  * @since 1.4
  */
+//可中断的channel
+//实现此接口的channel是异步的、可关闭的
+//实现此接口的channel，如果一个线程被io操作阻塞，那么另外一个线程可以执行channel的close()方法。
+//被阻塞线程将会抛出AsynchronousCloseException
 
+//实现此接口的channel，如果一个线程被io操作阻塞，那么另外一个线程可以执行前者的interrupt()方法。
+//将会导致channel关闭，被阻塞线程将会抛出ClosedByInterruptException，并设置为interrupt状态
+//可通过insanceOf测试
 public interface InterruptibleChannel
     extends Channel
 {

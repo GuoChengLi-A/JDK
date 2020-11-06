@@ -40,6 +40,6 @@ package java.nio.file;
  *
  * @since 1.7
  */
-
+//配置以哪种方式打开或创建file
 public interface OpenOption {
 }

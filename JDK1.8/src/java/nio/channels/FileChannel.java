@@ -278,6 +278,7 @@ public abstract class FileChannel
      *
      * @since   1.7
      */
+    //打开或创建一个file，并返回一个连接该file的channel
     public static FileChannel open(Path path,
                                    Set<? extends OpenOption> options,
                                    FileAttribute<?>... attrs)

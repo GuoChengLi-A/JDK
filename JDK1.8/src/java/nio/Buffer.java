@@ -300,6 +300,7 @@ public abstract class Buffer {
      * @throws  InvalidMarkException
      *          If the mark has not been set
      */
+    //重置为之前标记的position位置
     public final Buffer reset() {
         int m = mark;
         if (m < 0)
@@ -353,6 +354,7 @@ public abstract class Buffer {
      *
      * @return  This buffer
      */
+    //调用此方法，limit设置为当前位置，然后将position设置为0；如果定义了mark，那么丢弃
     public final Buffer flip() {
         limit = position;
         position = 0;
@@ -387,6 +389,7 @@ public abstract class Buffer {
      *
      * @return  The number of elements remaining in this buffer
      */
+    //flip之后，limit-position表示剩余未读取的字符
     public final int remaining() {
         return limit - position;
     }
@@ -398,6 +401,7 @@ public abstract class Buffer {
      * @return  <tt>true</tt> if, and only if, there is at least one element
      *          remaining in this buffer
      */
+    //查看是否还有可读取的元素
     public final boolean hasRemaining() {
         return position < limit;
     }

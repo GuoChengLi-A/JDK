@@ -44,7 +44,8 @@ import java.nio.ByteBuffer;
  * @author JSR-51 Expert Group
  * @since 1.4
  */
-
+//如果一个线程初始化了写操作，那么其他线程试图初始化另外一个写操作时，会阻塞到第一个写操作结束
+//在一个可读的chanel中，同时有且只有一个读操作
 public interface WritableByteChannel
     extends Channel
 {

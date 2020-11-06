@@ -43,7 +43,7 @@ package java.nio;
  * int buffers:
  *
  * <ul>
- *
+ *             绝对的        相对的
  *   <li><p> Absolute and relative {@link #get() <i>get</i>} and
  *   {@link #put(int) <i>put</i>} methods that read and write
  *   single ints; </p></li>

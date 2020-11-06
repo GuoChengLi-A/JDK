@@ -49,6 +49,7 @@ public enum StandardOpenOption implements OpenOption {
      * <p> If the file is opened for write access by other programs, then it
      * is file system specific if writing to the end of the file is atomic.
      */
+    //如果file以write的权限打开，那么将会在file的结尾处append
     APPEND,
 
     /**
@@ -56,6 +57,7 @@ public enum StandardOpenOption implements OpenOption {
      * access, then its length is truncated to 0. This option is ignored
      * if the file is opened only for {@link #READ} access.
      */
+    //如果file以write方式打开，file的长度将会重置为0，即清空文件；但是如果file以read方法打开，那么自动忽略该操作
     TRUNCATE_EXISTING,
 
     /**
@@ -65,6 +67,9 @@ public enum StandardOpenOption implements OpenOption {
      * if it does not exist is atomic with respect to other file system
      * operations.
      */
+    //如果file不存在，那么创建一个新文件
+    //如果已被设置为CREATE_NEW操作，那么将会忽略当前option
+    //在其他文件系统操作中，检查文件是否存在及创建文件是原子操作
     CREATE,
 
     /**
@@ -73,6 +78,7 @@ public enum StandardOpenOption implements OpenOption {
      * if it does not exist is atomic with respect to other file system
      * operations.
      */
+    //创建一个新文件，如果文件已经存在，那么fail
     CREATE_NEW,
 
     /**
@@ -97,6 +103,10 @@ public enum StandardOpenOption implements OpenOption {
      * when opening an existing file that is a symbolic link then it may fail
      * (by throwing {@link java.io.IOException}).
      */
+    //如果调用了close()方法，那么将会在关闭时尽可能删除文件；反之，会在虚拟机终止时尽可能删除文件
+    //如果要关闭的文件同时被其他实体打开，那么不建议使用该option
+    //何时关闭和如何关闭的实现是特定的，
+    //不建议使用
     DELETE_ON_CLOSE,
 
     /**

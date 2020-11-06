@@ -49,7 +49,13 @@ import java.io.IOException;
  * @since 1.7
  * @see java.nio.file.Files#newByteChannel
  */
-
+/*
+* 实现此接口需要：
+* 1.提供查看当前position为方法position()，修改position的方法position(long)
+* 2.提供对当前连接实体size的查看方法
+* 3.当写入byte时，size增加；当调用truncate()方法时，size减少
+* 4.实现position(long) or truncate()方法时需要指定返回值类型，以便形成call chain
+*/
 public interface SeekableByteChannel
     extends ByteChannel
 {
@@ -63,7 +69,6 @@ public interface SeekableByteChannel
      */
     @Override
     int read(ByteBuffer dst) throws IOException;
-
     /**
      * Writes a sequence of bytes to this channel from the given buffer.
      *

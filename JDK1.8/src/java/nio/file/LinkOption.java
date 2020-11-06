@@ -39,5 +39,6 @@ public enum LinkOption implements OpenOption, CopyOption {
      * @see Files#copy
      * @see SecureDirectoryStream#newByteChannel
      */
+    //拒绝遵循符号连接
     NOFOLLOW_LINKS;
 }

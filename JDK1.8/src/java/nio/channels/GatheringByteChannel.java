@@ -46,6 +46,10 @@ import java.nio.ByteBuffer;
  * @since 1.4
  */
 
+/*
+* 可从多个buf中写入byte的channel
+*
+*/
 public interface GatheringByteChannel
     extends WritableByteChannel
 {
