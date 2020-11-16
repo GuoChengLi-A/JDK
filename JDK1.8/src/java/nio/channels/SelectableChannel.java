@@ -88,7 +88,20 @@ import java.nio.channels.spi.SelectorProvider;
  * @see SelectionKey
  * @see Selector
  */
-
+/*
+* 1.所有支持就绪检查的通道类的父类
+* 2.使用该类实例首先需要注册register(Selector, int)第二个参数表示感兴趣集合；一个selectableChannel实例可以
+* 对多个操作感兴趣，通过位或操作符实现：
+* int interestSet=SelectionKey.OP_READ|SelectionKey.OP_WRITE;
+* 但是并非所有selectableChannle支持所有操作；可通过validOps()方法来获取特定通道下所有支持的操作集合
+* 3.一旦selectableChannel实例注册到selector上，那么将会保留至注销；注销时，释放涉及channel实例的所有资源
+* 实例无法直接注销，可以通过cancel()方法取消注册，该SelectionKey对象将会被”拷贝”至已取消键的集合中，该键此时已经失效，但是该注册关系并不会立刻终结。
+* 在下一次select()时，已取消键的集合中的元素会被清除，相应的注册关系也真正终结。
+* 4.可将一个或多个对象绑定到SelectionKey对象上 注册时绑定 or 调用attach绑定；当绑定的对象不再使用时，需要手动释放，否则会造成内存泄露
+*
+*
+* selectionKey代表selectableChannle与selector之间的注册关系
+*/
 public abstract class SelectableChannel
     extends AbstractInterruptibleChannel
     implements Channel
@@ -104,6 +117,7 @@ public abstract class SelectableChannel
      *
      * @return  The provider that created this channel
      */
+    //返回创建此channel的provider
     public abstract SelectorProvider provider();
 
     /**

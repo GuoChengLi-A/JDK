@@ -68,7 +68,7 @@ import java.io.IOException;
 
 //实现此接口的channel，如果一个线程被io操作阻塞，那么另外一个线程可以执行前者的interrupt()方法。
 //将会导致channel关闭，被阻塞线程将会抛出ClosedByInterruptException，并设置为interrupt状态
-//可通过insanceOf测试
+//可通过instanceOf测试
 public interface InterruptibleChannel
     extends Channel
 {

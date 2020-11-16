@@ -202,7 +202,15 @@ import java.util.Set;
  * @see SelectableChannel
  * @see SelectionKey
  */
-
+/*
+* selector维护三种SelectionKey集合
+* 1.已注册的键的集合 keys()方法返回 返回的set不能修改，否则抛出UnsupportedOperationException
+* 2.已选择的键的集合 selectedKeys()方法返回
+* 3.已取消的键的集合 已注册的键的集合的子集，包含调用cancel()方法selectionKey对象，但是还未注销；在下一次select()方法期间会被删除
+*
+* 注意：与Selector一起使用时，Channel必须处于非阻塞模式下，否则将抛出IllegalBlockingModeException异常，
+* 这意味着不能将FileChannel与Selector一起使用，因为FileChannel不能切换到非阻塞模式，而套接字通道都可以
+*/
 public abstract class Selector implements Closeable {
 
     /**

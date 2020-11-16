@@ -502,6 +502,9 @@ public abstract class FileChannel
      * @throws  IOException
      *          If some other I/O error occurs
      */
+    //如果给定的size小于file的当前size，那么file将会被截断，并且丢弃新末尾外的其他字节；
+    //反之，file将不会做任何更改
+    //在上述两种情况中，如果buf的position大于size，那么position将会设置为该size
     public abstract FileChannel truncate(long size) throws IOException;
 
     /**

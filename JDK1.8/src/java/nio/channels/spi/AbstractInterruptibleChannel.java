@@ -28,13 +28,13 @@
 
 package java.nio.channels.spi;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.channels.*;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import sun.nio.ch.Interruptible;
+
+import java.io.IOException;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.Channel;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.InterruptibleChannel;
 
 
 /**
@@ -107,6 +107,8 @@ public abstract class AbstractInterruptibleChannel
      * @throws  IOException
      *          If an I/O error occurs
      */
+    //如果channel已经被关闭，那么调用close()方法会立即返回；否则标记channel为closed状态，后执行implCloseChannel()
+    //方法完成关闭操作
     public final void close() throws IOException {
         synchronized (closeLock) {
             if (!open)
@@ -132,6 +134,8 @@ public abstract class AbstractInterruptibleChannel
      * @throws  IOException
      *          If an I/O error occurs while closing the channel
      */
+    //真实关闭channel的操作，调用永远不会超过一次
+    //此方法的实现必须满足：调用方法时，由于io操作被阻塞的线程立刻返回---抛出异常或者正常返回
     protected abstract void implCloseChannel() throws IOException;
 
     public final boolean isOpen() {
@@ -140,11 +144,11 @@ public abstract class AbstractInterruptibleChannel
 
 
     // -- Interruption machinery --
-
+    //标记关闭状态
     private Interruptible interruptor;
     private volatile Thread interrupted;
 
-    /**
+    /**标记一个io操作，可能无限期阻塞
      * Marks the beginning of an I/O operation that might block indefinitely.
      *
      * <p> This method should be invoked in tandem with the {@link #end end}
@@ -152,6 +156,7 @@ public abstract class AbstractInterruptibleChannel
      * shown <a href="#be">above</a>, in order to implement asynchronous
      * closing and interruption for this channel.  </p>
      */
+    //通过try...finally块，begin()与end()方法一前一后执行；为了实现channel的异步关闭和中断？？？
     protected final void begin() {
         if (interruptor == null) {
             interruptor = new Interruptible() {

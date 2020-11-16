@@ -52,6 +52,7 @@ public abstract class AbstractSelectableChannel
 {
 
     // The provider that created this channel
+    // 创建channel的provider  channel子类的open()方法中的provider
     private final SelectorProvider provider;
 
     // Keys that have been created by registering this channel with selectors.
@@ -65,9 +66,11 @@ public abstract class AbstractSelectableChannel
     private final Object keyLock = new Object();
 
     // Lock for registration and configureBlocking operations
+    // 注册和配置阻塞状态的lock
     private final Object regLock = new Object();
 
     // Blocking mode, protected by regLock
+    // 阻塞模式，受regLock保护
     boolean blocking = true;
 
     /**
@@ -93,7 +96,7 @@ public abstract class AbstractSelectableChannel
     // -- Utility methods for the key set --
 
     private void addKey(SelectionKey k) {
-        assert Thread.holdsLock(keyLock);
+//        assert Thread.holdsLock(keyLock);
         int i = 0;
         if ((keys != null) && (keyCount < keys.length)) {
             // Find empty element of key array

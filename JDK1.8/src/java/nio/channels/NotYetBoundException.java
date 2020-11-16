@@ -36,7 +36,7 @@ package java.nio.channels;
  *
  * @since 1.4
  */
-
+//如果在socket通道中没有绑定端口，进行io操作时，会抛出该异常
 public class NotYetBoundException
     extends IllegalStateException
 {
